@@ -1,14 +1,14 @@
 package com.application.logger;
 
-import com.application.model.utils.UserCaseLogger;
+import com.application.model.utils.LoanApplicationLogger;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 @Component
-public class Slf4jUseCaseLogger implements UserCaseLogger {
+public class Slf4JUseLogger implements LoanApplicationLogger {
 
-    private static final Logger logger = LoggerFactory.getLogger(Slf4jUseCaseLogger.class);
+    private static final Logger logger = LoggerFactory.getLogger(Slf4JUseLogger.class);
 
     @Override
     public void trace(String message) {

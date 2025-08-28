@@ -1,6 +1,6 @@
 package com.application.model.utils;
 
-public interface UserCaseLogger {
+public interface LoanApplicationLogger {
 
     void trace(String message);
     void debug(String message);
