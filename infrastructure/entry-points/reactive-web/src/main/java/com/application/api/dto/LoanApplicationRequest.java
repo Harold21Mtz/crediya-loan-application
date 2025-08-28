@@ -3,37 +3,25 @@ package com.application.api.dto;
 import jakarta.validation.constraints.*;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
+
+import static com.application.api.utils.Constants.*;
 
 public record LoanApplicationRequest(
 
-        @NotBlank(message = "El nombre es obligatorio")
-        String name,
-
-        @NotBlank(message = "El apellido es obligatorio")
-        String lastname,
-
-        @NotNull(message = "La fecha de nacimiento es obligatoria")
-        LocalDate birthDate,
-
-        @NotBlank(message = "El documento es obligatorio")
+        @NotBlank(message = DOCUMENT_REQUIRED)
+        @Size(min = 5, max = 20, message = DOCUMENT_SIZE)
         String documentNumber,
 
-        @NotBlank(message = "El teléfono es obligatorio")
-        String phone,
+        @NotNull(message = AMOUNT_REQUIRED)
+        @DecimalMin(value = "500000.00", message = AMOUNT_MIN)
+        @Digits(integer = 15, fraction = 2, message = AMOUNT_INVALID)
+        BigDecimal amount,
 
-        @NotBlank(message = "El correo es obligatorio")
-        @Email(message = "El correo no tiene un formato válido")
-        String email,
+        @NotNull(message = TERM_REQUIRED)
+        @Min(value = 3, message = TERM_MIN)
+        @Max(value = 120, message = TERM_MAX)
+        Integer term,
 
-        @NotBlank(message = "La dirección es obligatoria")
-        String address,
-
-        @NotNull(message = "El salario base es obligatorio")
-        @DecimalMin(value = "0.0", message = "El salario base debe ser mayor o igual a 0")
-        @DecimalMax(value = "15000000.0", message = "El salario base no puede superar los 15 millones")
-        BigDecimal baseSalary,
-
-        @NotNull(message = "El rol es obligatorio")
-        Long roleId) {
+        @NotNull(message = LOAN_TYPE_REQUIRED)
+        Long loanTypeId) {
 }
