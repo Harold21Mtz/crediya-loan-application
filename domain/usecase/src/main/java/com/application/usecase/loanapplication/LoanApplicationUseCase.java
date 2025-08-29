@@ -26,6 +26,11 @@ public class LoanApplicationUseCase {
 
         return gatewayRepository.findByDocument(loanApplication.getDocumentNumber())
                 .doOnSubscribe(sub -> logger.debug("Buscando el usuario con documento: " + loanApplication.getDocumentNumber()))
+                .switchIfEmpty(Mono.defer(() -> {
+                    logger.error("No existe el usuario buscado con documento: {}", null);
+                    return Mono.error(new ResourceNotFoundException(
+                            "No existe el usuario con documento: " + loanApplication.getDocumentNumber()));
+                }))
                 .flatMap(user -> {
                     loanApplication.setEmail(user.getEmail());
                     logger.info("Email del usuario asignado: " + user.getEmail());
@@ -37,22 +42,15 @@ public class LoanApplicationUseCase {
                                 logger.error("El tipo de préstamo con id = " + loanApplication.getLoanTypeId() + " no existe", null);
                                 return Mono.error(new ResourceNotFoundException("El tipo de préstamo no existe"));
                             }))
-                            .then(statusRepository.findStatusByName("EN_REVISION")
-                                    .doOnSubscribe(sub -> logger.debug("Buscando estado 'EN_REVISION'"))
-                                    .doOnNext(statusId -> logger.info("Estado encontrado: " + statusId))
-                                    .switchIfEmpty(Mono.defer(() -> {
-                                        logger.error("No existe estado EN_REVISION", null);
-                                        return Mono.error(new ResourceNotFoundException("No existe estado EN REVISION"));
-                                    }))
-                                    .flatMap(statusId -> {
-                                        loanApplication.setStatusId(statusId);
+                            .flatMap(statusId -> {
+                                        loanApplication.setStatusId(1L); // Estado "Pendiente"
                                         loanApplication.setApplicationDate(LocalDate.now());
 
                                         logger.info("Preparando solicitud antes de guardar: " + loanApplication);
                                         return loanApplicationRepository.saveLoanApplication(loanApplication)
                                                 .doOnSuccess(saved -> logger.info("Solicitud guardada con éxito: " + loanApplication))
                                                 .doOnError(err -> logger.error("Error al guardar la solicitud", err));
-                                    }));
+                                    });
                 })
                 .then()
                 .doOnTerminate(() -> logger.info("Proceso de creación de solicitud finalizado"));
